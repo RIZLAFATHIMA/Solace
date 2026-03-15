@@ -1,35 +1,81 @@
-# Python
+# ============================================================
+# EMOTION SYSTEM — .gitignore
+# ============================================================
+
+# --- Secrets & Environment ---
+# THE MOST IMPORTANT SECTION — never commit these
+.env
+.env.*
+!.env.example
+
+# --- Python ---
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
+*.pdb
 .Python
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# --- Virtual Environments ---
 env/
 venv/
 .env/
 .venv/
+ENV/
 Pipfile.lock
-app_debug.log
 
-# Models
+# --- Logs & Debug Output ---
+app_debug.log
+*.log
+login_output.txt
+login_output2.txt
+
+# --- Patient Audio Uploads (PRIVACY — never commit) ---
+uploads/
+*.webm
+*.wav
+*.mp3
+*.ogg
+
+# --- ML Model Files (too large for Git) ---
+*.h5
+*.keras
+*.pb
+*.pt
+*.pth
 *.safetensors
 *.bin
-*.h5
-env/
-venv/
-.env/
-.venv/
-Pipfile.lock
-app_debug.log
+*.ckpt
+voice_model.zip
+models/voice_model/
+models/text_model/
 
-# Node
+# --- Database ---
+*.sqlite
+*.db
+
+# --- Node / Frontend ---
 node_modules/
 npm-debug.log
 yarn-error.log
-dist/
-build/
+frontend/dist/
+frontend/build/
 .next/
 
-# OS
+# --- OS ---
 .DS_Store
 Thumbs.db
+desktop.ini
+
+# --- VS Code ---
+.vscode/
+*.code-workspace
+
+# --- Test & Migration Artifacts ---
+# Keep test files in version control but ignore their outputs
+login_output*.txt
+dummy_test.wav
