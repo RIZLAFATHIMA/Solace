@@ -4,24 +4,24 @@
 
 @layer base {
   body {
-    @apply bg-nature-50 text-gray-800 font-sans antialiased;
+    @apply bg-serenity-50 text-serenity-900 font-sans antialiased selection:bg-lavender-200 selection:text-lavender-950;
   }
 }
 
 @layer components {
   .glass-panel {
-    @apply bg-white/70 backdrop-blur-md border border-white/40 shadow-xl rounded-2xl;
+    @apply bg-white/70 backdrop-blur-xl border border-white/60 shadow-[0_8px_30px_rgba(74,119,155,0.06)] rounded-3xl;
   }
   
   .btn-primary {
-    @apply px-6 py-2 bg-nature-500 hover:bg-nature-600 text-white rounded-lg transition-all duration-300 shadow-md hover:shadow-lg font-medium;
+    @apply px-6 py-2.5 bg-gradient-to-r from-serenity-500 to-lavender-500 hover:from-serenity-600 hover:to-lavender-600 text-white rounded-xl transition-all duration-300 shadow-[0_4px_15px_rgba(139,92,246,0.25)] hover:shadow-[0_6px_20px_rgba(139,92,246,0.35)] hover:-translate-y-0.5 font-semibold tracking-wide flex items-center justify-center;
   }
   
   .btn-secondary {
-    @apply px-6 py-2 bg-white text-nature-600 border border-nature-200 hover:bg-nature-50 rounded-lg transition-all duration-300 font-medium;
+    @apply px-6 py-2.5 bg-white text-lavender-700 border border-lavender-100 hover:bg-lavender-50 hover:border-lavender-200 rounded-xl transition-all duration-300 font-semibold shadow-sm hover:shadow tracking-wide flex items-center justify-center;
   }
   
   .input-field {
-    @apply w-full px-4 py-3 rounded-lg border border-gray-200 focus:border-nature-400 focus:ring-2 focus:ring-nature-100 outline-none transition-all bg-white/80;
+    @apply w-full px-4 py-3.5 rounded-xl border border-serenity-200 bg-white/80 focus:bg-white focus:border-lavender-400 focus:ring-4 focus:ring-lavender-400/15 outline-none transition-all duration-300 placeholder:text-gray-400 font-medium text-serenity-800;
   }
 }
