@@ -1,29 +1,57 @@
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { format, parseISO } from 'date-fns';
 
-const emotionColors = {
-  Joy: '#f59e0b', // amber
-  Sadness: '#3b82f6', // blue
-  Anger: '#ef4444', // red
-  Fear: '#8b5cf6', // purple
-  Surprise: '#10b981', // emerald
-  Neutral: '#6b7280' // gray
+// IST formatter — used everywhere dates are displayed
+export const formatIST = (dateStr) =>
+  new Date(dateStr).toLocaleString('en-IN', {
+    timeZone: 'Asia/Kolkata',
+    day: 'numeric',
+    month: 'short',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true
+  });
+
+// Maps emotion label → numeric Y axis position (same scale as PatientDashboard)
+const EMOTION_TO_VALUE = {
+  Joy:     4,
+  Neutral: 3,
+  Fear:    2,
+  Sadness: 1,
+  Anger:   0
 };
 
-const CustomTooltip = ({ active, payload, label }) => {
+const VALUE_TO_EMOTION = {
+  4: 'Joy',
+  3: 'Neutral',
+  2: 'Fear',
+  1: 'Sadness',
+  0: 'Anger'
+};
+
+const EMOTION_COLORS = {
+  Joy:     '#f59e0b',
+  Sadness: '#3b82f6',
+  Anger:   '#ef4444',
+  Fear:    '#8b5cf6',
+  Neutral: '#6b7280'
+};
+
+const CustomTooltip = ({ active, payload }) => {
   if (active && payload && payload.length) {
-    const data = payload[0].payload;
+    const d = payload[0].payload;
+    const emotion = VALUE_TO_EMOTION[d.emotionValue] || d.emotion || 'Unknown';
     return (
       <div className="bg-white/90 backdrop-blur border border-gray-200 p-4 rounded-xl shadow-lg">
-        <p className="text-gray-500 text-sm mb-1">{format(parseISO(data.date), 'MMM d, h:mm a')}</p>
-        <p className="font-semibold text-lg" style={{ color: emotionColors[data.emotion] || '#000' }}>
-          {data.emotion}
+        <p className="text-gray-500 text-sm mb-1">{formatIST(d.date)}</p>
+        <p className="font-semibold text-lg" style={{ color: EMOTION_COLORS[emotion] || '#000' }}>
+          {emotion}
         </p>
         <p className="text-sm text-gray-600">
-          Confidence: <span className="font-medium text-gray-900">{data.confidence_percentage}%</span>
+          Confidence: <span className="font-medium text-gray-900">{d.confidence_percentage}%</span>
         </p>
         <p className="text-xs text-gray-400 mt-1 capitalize">
-          Input: {data.entry_type}
+          Input: {d.entry_type}
         </p>
       </div>
     );
@@ -40,44 +68,70 @@ export default function EmotionChart({ data }) {
     );
   }
 
-  // Map to format suitable for charting
+  // Map each data point to a numeric Y value so emotion labels show on Y axis
   const chartData = data.map(item => ({
     ...item,
-    formattedDate: format(parseISO(item.date), 'MMM d'),
-    // We can map emotions to Y-axis values for scattered display, 
-    // or plot Confidence % if we're tracing a specific emotion over time.
-    // Here we'll just plot confidence percentage of whatever emotion was detected
-    value: item.confidence_percentage
+    emotionValue: EMOTION_TO_VALUE[item.emotion] !== undefined
+      ? EMOTION_TO_VALUE[item.emotion]
+      : 3 // default to Neutral
   }));
 
   return (
     <div className="h-80 w-full mt-4">
       <ResponsiveContainer width="100%" height="100%">
-        <LineChart data={chartData} margin={{ top: 20, right: 30, left: 0, bottom: 20 }}>
+        <LineChart data={chartData} margin={{ top: 20, right: 30, left: 10, bottom: 20 }}>
           <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e7eb" />
-          <XAxis 
-            dataKey="formattedDate" 
-            axisLine={false} 
-            tickLine={false} 
-            tick={{ fill: '#6b7280', fontSize: 12 }} 
-            dy={10} 
+          <XAxis
+            dataKey="date"
+            axisLine={false}
+            tickLine={false}
+            tick={{ fill: '#6b7280', fontSize: 11 }}
+            dy={10}
+            tickFormatter={(val) => {
+              try {
+                const date = new Date(val);
+                if (isNaN(date)) return val;
+                return date.toLocaleDateString('en-US', {
+                  timeZone: 'Asia/Kolkata',
+                  month: 'short',
+                  day: 'numeric'
+                });
+              } catch {
+                return val;
+              }
+            }}
           />
-          <YAxis 
-            domain={[0, 100]} 
-            axisLine={false} 
-            tickLine={false} 
-            tick={{ fill: '#6b7280', fontSize: 12 }} 
-            dx={-10}
-            label={{ value: 'Confidence %', angle: -90, position: 'insideLeft', fill: '#9ca3af', fontSize: 12 }}
+          {/* FIX: Y axis now shows emotion labels instead of confidence % */}
+          <YAxis
+            domain={[0, 4]}
+            ticks={[0, 1, 2, 3, 4]}
+            tickFormatter={(val) => VALUE_TO_EMOTION[val] || ''}
+            axisLine={false}
+            tickLine={false}
+            tick={{ fill: '#6b7280', fontSize: 12 }}
+            width={72}
           />
           <Tooltip content={<CustomTooltip />} />
-          <Line 
-            type="monotone" 
-            dataKey="value" 
-            stroke="#529652" 
+          <Line
+            type="monotone"
+            dataKey="emotionValue"
+            stroke="#8b5cf6"
             strokeWidth={3}
-            dot={{ r: 6, strokeWidth: 2, fill: '#fff' }}
-            activeDot={{ r: 8, strokeWidth: 0, fill: '#529652' }}
+            dot={({ cx, cy, payload }) => {
+              const emotion = VALUE_TO_EMOTION[payload.emotionValue] || 'Neutral';
+              return (
+                <circle
+                  key={`dot-${cx}-${cy}`}
+                  cx={cx}
+                  cy={cy}
+                  r={6}
+                  fill={EMOTION_COLORS[emotion] || '#8b5cf6'}
+                  stroke="#fff"
+                  strokeWidth={2}
+                />
+              );
+            }}
+            activeDot={{ r: 8, strokeWidth: 0, fill: '#6d28d9' }}
           />
         </LineChart>
       </ResponsiveContainer>

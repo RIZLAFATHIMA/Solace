@@ -1,14 +1,39 @@
+# ============================================================
+# EMOTION SYSTEM — Python Dependencies
+# Install with: pip install -r requirement.txt
+# ============================================================
+
+# --- Web Framework ---
 Flask==3.0.0
 flask-cors==4.0.0
+Werkzeug==3.0.0
+
+# --- Authentication ---
+# Using PyJWT directly (raw jwt.encode/decode in auth.py)
+# Flask-JWT-Extended has been REMOVED — it was installed but never used,
+# and caused the InsecureKeyLengthWarning in the terminal.
+PyJWT==2.8.0
+
+# --- Database ---
 SQLAlchemy==2.0.21
 psycopg2-binary==2.9.9
-Werkzeug==3.0.0
-Flask-JWT-Extended==4.5.3
+
+# --- Environment / Config ---
 python-dotenv==1.0.0
-requests
+
+# --- HTTP ---
+requests==2.31.0
+
+# --- Audio Processing ---
 librosa==0.10.1
 soundfile==0.12.1
-numpy==1.26.0
-tensorflow
-tf-keras
-protobuf
+
+# --- Numerical / ML ---
+# NOTE: tensorflow 2.15 does NOT support Python 3.12.
+# Minimum version for Python 3.12 is 2.16.0
+numpy==1.26.4
+tensorflow==2.16.2
+tf-keras==2.16.0
+protobuf==4.25.3
+
+itsdangerous==2.1.2

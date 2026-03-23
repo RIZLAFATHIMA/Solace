@@ -12,6 +12,7 @@ class User(Base):
     password_hash = Column(Text, nullable=False)
     role = Column(String(20), CheckConstraint("role IN ('patient','therapist')"))
     invite_code = Column(String(20), unique=True, nullable=True, index=True)
+    is_verified = Column(Integer, default=0) # SQLite/some DBs prefer integer for boolean
     created_at = Column(TIMESTAMP, server_default=func.now())
 
     # Relationships
